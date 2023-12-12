@@ -1,0 +1,20 @@
+{
+  "name": "online_household_product_order",
+  "version": "1.0.0",
+  "description": "An Online Household Product Order Backend implemented in ES6, following the  Microservices Architecture. Each independent service operates autonomously to efficiently handle specific business logic and functionalities.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/obinnafranklinduru/Online_Household_Product_Order.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/obinnafranklinduru/Online_Household_Product_Order/issues"
+  },
+  "homepage": "https://github.com/obinnafranklinduru/Online_Household_Product_Order#readme"
+}
