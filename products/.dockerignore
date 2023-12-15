@@ -1,0 +1,35 @@
+# Ignore node_modules, as they can be installed inside the Docker image
+node_modules
+
+# Ignore development and test-related files
+npm-debug.log
+yarn-error.log
+*.log
+*.swp
+.DS_Store
+.vscode/
+
+# Ignore files used for testing
+__tests__
+test
+tests
+
+# Ignore version control files
+.git
+.gitignore
+.gitattributes
+
+# Ignore editor-specific files
+.idea/
+*.sublime-*
+*.vscode-*
+
+# Ignore build and configuration files
+build/
+dist/
+*.bak
+*.md
+*.json
+*.lock
+*.bak
+*.map

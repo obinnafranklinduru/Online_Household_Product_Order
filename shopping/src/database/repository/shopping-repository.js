@@ -1,72 +1,101 @@
-const { CustomerModel, ProductModel, OrderModel } = require('../models');
+const { OrderModel, CartModel } = require('../models');
 const { v4: uuidv4 } = require('uuid');
-const { APIError, BadRequestError } = require('../../utils/app-errors')
 
-
-//Dealing with data base operations
+// Dealing with database operations
 class ShoppingRepository {
-
-    // payment
-
-    async Orders(customerId) {
+    
+    // Retrieve orders for a customer
+    async Orders(customerId){
         try {
-            const orders = await OrderModel.find({ customerId }).populate('items.product');
+            const orders = await OrderModel.find({ customerId });
             return orders;
-        } catch (err) {
-            throw APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Unable to Find Orders')
+        } catch (error) {
+            throw new Error('Error retrieving orders');
         }
     }
 
-    async CreateNewOrder(customerId, txnId) {
-
-        //check transaction for payment Status
-        
+    // Retrieve cart items for a customer
+    async Cart(customerId){
         try {
-            const profile = await CustomerModel.findById(customerId).populate('cart.product');
-    
-            if (profile) {
-                
+            const cartItems = await CartModel.find({ customerId });
+            if (cartItems) {
+                return cartItems;
+            }
+            throw new Error('Cart data not found');
+        } catch (error) {
+            throw new Error('Error retrieving cart items');
+        }
+    }
+
+    // Add or update a cart item
+    async AddCartItem(customerId, item, qty, isRemove){
+        try {
+            const cart = await CartModel.findOne({ customerId });
+
+            const { _id } = item;
+
+            if (cart) {
+                const cartItems = cart.items.filter(cartItem => {
+                    if (cartItem.product._id.toString() === _id.toString() && !isRemove) {
+                        cartItem.unit = qty;
+                    }
+                    return !isRemove || cartItem.product._id.toString() !== _id.toString();
+                });
+
+                if (!isRemove) {
+                    cartItems.push({ product: { ...item }, unit: qty });
+                }
+
+                cart.items = cartItems;
+
+                return await cart.save();
+            } else {
+                return await CartModel.create({
+                    customerId,
+                    items: [{ product: { ...item }, unit: qty }]
+                });
+            }
+        } catch (error) {
+            throw new Error('Error updating cart item');
+        }
+    }
+
+    // Create a new order
+    async CreateNewOrder(customerId, txnId){
+        try {
+            const cart = await CartModel.findOne({ customerId });
+
+            if (cart) {
                 let amount = 0;
-    
-                let cartItems = profile.cart;
-    
+                const cartItems = cart.items;
+
                 if (cartItems.length > 0) {
-                    //process Order
-                    cartItems.map(item => {
+                    cartItems.forEach(item => {
                         amount += parseInt(item.product.price) * parseInt(item.unit);
                     });
-        
+
                     const orderId = uuidv4();
-        
+
                     const order = new OrderModel({
                         orderId,
                         customerId,
                         amount,
-                        txnId,
                         status: 'received',
                         items: cartItems
-                    })
-        
-                    profile.cart = [];
-                    
-                    order.populate('items.product').execPopulate();
+                    });
+
+                    cart.items = [];
+
                     const orderResult = await order.save();
-            
-                    profile.orders.push(orderResult);
-    
-                    await profile.save();
-    
+                    await cart.save();
                     return orderResult;
                 }
             }
-    
-            return {}
 
-        } catch (err) {
-            throw APIError('API Error', STATUS_CODES.INTERNAL_ERROR, 'Unable to Find Category')
+            return {};
+        } catch (error) {
+            throw new Error('Error creating a new order');
         }
-        
-
     }
 }
 

@@ -1,93 +1,89 @@
 const { ProductModel } = require("../models");
-const { APIError } = require("../../utils/app-errors");
 
-//Dealing with data base operations
+// Repository handling database operations for products
 class ProductRepository {
-  async CreateProduct({
-    name,
-    desc,
-    type,
-    unit,
-    price,
-    available,
-    suplier,
-    banner,
-  }) {
-    try {
-      const product = new ProductModel({
-        name,
-        desc,
-        type,
-        unit,
-        price,
-        available,
-        suplier,
-        banner,
-      });
+    /**
+     * Create a new product in the database.
+     * @param {Object} productData - Product data to be created.
+     * @returns {Promise<Object>} - Result of the created product.
+     */
+    async CreateProduct({ name, desc, type, unit, price, available, supplier, banner }) {
+        try {
+            const product = new ProductModel({
+                name,
+                desc,
+                type,
+                unit,
+                price,
+                available,
+                supplier,
+                banner,
+            });
 
-      const productResult = await product.save();
-      return productResult;
-    } catch (err) {
-      throw new APIError(
-        "API Error",
-        STATUS_CODES.INTERNAL_ERROR,
-        "Unable to Create Product"
-      );
+            const productResult = await product.save();
+            return productResult;
+        } catch (error) {
+            console.error('Error creating product:', error);
+            throw new Error('Failed to create product.');
+        }
     }
-  }
 
-  async Products() {
-    try {
-      return await ProductModel.find();
-    } catch (err) {
-      throw new APIError(
-        "API Error",
-        STATUS_CODES.INTERNAL_ERROR,
-        "Unable to Get Products"
-      );
+    /**
+     * Retrieve all products from the database.
+     * @returns {Promise<Array>} - Array of products.
+     */
+    async Products() {
+        try {
+            return await ProductModel.find();
+        } catch (error) {
+            console.error('Error fetching products:', error);
+            throw new Error('Failed to fetch products.');
+        }
     }
-  }
 
-  async FindById(id) {
-    try {
-      return await ProductModel.findById(id);
-    } catch (err) {
-      throw new APIError(
-        "API Error",
-        STATUS_CODES.INTERNAL_ERROR,
-        "Unable to Find Product"
-      );
+    /**
+     * Find a product by its ID.
+     * @param {string} id - Product ID.
+     * @returns {Promise<Object|null>} - Product object or null if not found.
+     */
+    async FindById(id) {
+        try {
+            return await ProductModel.findById(id);
+        } catch (error) {
+            console.error('Error finding product by ID:', error);
+            throw new Error('Failed to find product by ID.');
+        }
     }
-  }
 
-  async FindByCategory(category) {
-    try {
-      const products = await ProductModel.find({ type: category });
-      return products;
-    } catch (err) {
-      throw new APIError(
-        "API Error",
-        STATUS_CODES.INTERNAL_ERROR,
-        "Unable to Find Category"
-      );
+    /**
+     * Find products by category.
+     * @param {string} category - Product category.
+     * @returns {Promise<Array>} - Array of products in the specified category.
+     */
+    async FindByCategory(category) {
+        try {
+            const products = await ProductModel.find({ type: category });
+            return products;
+        } catch (error) {
+            console.error('Error finding products by category:', error);
+            throw new Error('Failed to find products by category.');
+        }
     }
-  }
 
-  async FindSelectedProducts(selectedIds) {
-    try {
-      const products = await ProductModel.find()
-        .where("_id")
-        .in(selectedIds.map((_id) => _id))
-        .exec();
-      return products;
-    } catch (err) {
-      throw new APIError(
-        "API Error",
-        STATUS_CODES.INTERNAL_ERROR,
-        "Unable to Find Product"
-      );
+    /**
+     * Find selected products by their IDs.
+     * @param {Array<string>} selectedIds - Array of product IDs.
+     * @returns {Promise<Array>} - Array of selected products.
+     */
+    async FindSelectedProducts(selectedIds) {
+        try {
+            const products = await ProductModel.find().where('_id').in(selectedIds.map(_id => _id)).exec();
+            return products;
+        } catch (error) {
+            console.error('Error finding selected products:', error);
+            throw new Error('Failed to find selected products.');
+        }
     }
-  }
 }
 
 module.exports = ProductRepository;

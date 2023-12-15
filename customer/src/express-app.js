@@ -1,21 +1,40 @@
 const express = require('express');
-const cors  = require('cors');
-const { customer, appEvents } = require('./api');
-const HandleErrors = require('./utils/error-handler')
+const cors = require('cors');
+const compression = require('compression');
+const helmet = require('helmet');
+const hpp = require('hpp');
+const mongoSanitize = require('express-mongo-sanitize');
 
+const { customer } = require('./api');
+const { CreateChannel } = require('./utils');
+const ErrorHandler = require('./utils/error-handler');
 
+/**
+ * Configure the Express application.
+ * @param {Object} app - Express application instance.
+ */
 module.exports = async (app) => {
-    app.use(express.json({ limit: '1mb'}));
-    app.use(express.urlencoded({ extended: true, limit: '1mb'}));
-    app.use(cors());
-    app.use(express.static(__dirname + '/public'))
-    
+    try {
+        // Security Middlewares Configuration
+        app.use(helmet()); // set security HTTP headers
+        app.use(cors()); // Enable CORS for handling cross-origin requests
+        app.use(compression()); // gzip compression
+        app.use(express.json()); // Enable JSON parsing for request bodies
+        app.use(express.urlencoded({ extended: true })); // Enable parse urlencoded request body
+        app.use(express.static(__dirname + '/public')); // Serve static files from the 'public' directory
+        app.use(mongoSanitize()); // sanitize request data
+        app.use(hpp()); // protect against HTTP Parameter Pollution attacks
 
-    //api
-    appEvents(app);
-    customer(app);
+        // Create a message broker channel
+        const messageBrokerChannel = await CreateChannel();
 
-    // error handling
-    app.use(HandleErrors);
-    
-}
+        // Configure customer-related routes and middleware
+        customer(app, messageBrokerChannel);
+
+        // error handler
+        app.use(ErrorHandler)
+    } catch (error) {
+        console.error('Error configuring the Express application:', error);
+        process.exit(1);
+    }
+};

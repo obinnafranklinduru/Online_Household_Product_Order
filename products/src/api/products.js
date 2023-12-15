@@ -1,139 +1,168 @@
-const ProductService = require('../services/product-service');
-const {
-    PublishCustomerEvent,
-    PublishShoppingEvent,
-    PublishMessage,
-} = require("../utils");
-const UserAuth = require('./middlewares/auth')
+const httpStatus = require('http-status');
+const ProductService = require("../services/product-service");
+const UserAuth = require("./middlewares/auth");
+const { PublishMessage } = require("../utils");
+const { CUSTOMER_SERVICE, SHOPPING_SERVICE, } = require("../config");
 
-module.exports = (app) => {
-    
-    const service = new ProductService();
-    const customerService = new CustomerService();
+module.exports = (app, channel) => {
+  const service = new ProductService();
 
+  // Route to create a new product
+  app.post("/product/create", async (req, res, next) => {
+    try {
+      const { name, desc, type, unit, price, available, suplier, banner } = req.body;
+      
+      // TODO: validation
 
-    app.post('/product/create', async(req,res,next) => {
-        
-        try {
-            const { name, desc, type, unit,price, available, suplier, banner } = req.body; 
-            // validation
-            const { data } =  await service.CreateProduct({ name, desc, type, unit,price, available, suplier, banner });
-            return res.json(data);
-            
-        } catch (err) {
-            next(err)    
-        }
-        
-    });
+      const { data } = await service.CreateProduct({
+        name,
+        desc,
+        type,
+        unit,
+        price,
+        available,
+        suplier,
+        banner,
+      });
 
-    app.get('/category/:type', async(req,res,next) => {
-        
-        const type = req.params.type;
-        
-        try {
-            const { data } = await service.GetProductsByCategory(type)
-            return res.status(200).json(data);
+      return res.status(httpStatus.CREATED).json(data);
+    } catch (error) {
+      console.error("Error creating product:", error);
+      next(error);
+    }
+  });
 
-        } catch (err) {
-            next(err)
-        }
+  // Route to get products by category
+  app.get("/category/:type", async (req, res, next) => {
+    try {
+      const type = req.params.type;
+      const { data } = await service.GetProductsByCategory(type);
+      return res.status(httpStatus.OK).json(data);
+    } catch (error) {
+      console.error("Error getting products by category:", error);
+      next(error);
+    }
+  });
 
-    });
+  // Route to get product description by ID
+  app.get("/:id", async (req, res, next) => {
+    try {
+      const productId = req.params.id;
+      const { data } = await service.GetProductDescription(productId);
+      return res.status(httpStatus.OK).json(data);
+    } catch (error) {
+      console.error("Error getting product description:", error);
+      next(error);
+    }
+  });
 
-    app.get('/:id', async(req,res,next) => {
-        
-        const productId = req.params.id;
+  // Route to get selected products by IDs
+  app.post("/ids", async (req, res, next) => {
+    try {
+      const { ids } = req.body;
+      const products = await service.GetSelectedProducts(ids);
+      return res.status(httpStatus.OK).json(products);
+    } catch (error) {
+      console.error("Error getting selected products:", error);
+      next(error);
+    }
+  });
 
-        try {
-            const { data } = await service.GetProductDescription(productId);
-            return res.status(200).json(data);
+  // Route to add a product to the wishlist
+  app.put("/wishlist", UserAuth, async (req, res, next) => {
+    try {
+      const { _id } = req.user;
+      const { data } = await service.GetProductPayload(
+        _id,
+        { productId: req.body._id },
+        "ADD_TO_WISHLIST"
+      );
 
-        } catch (err) {
-            next(err)
-        }
+      PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+      res.status(httpStatus.OK).json(data.data.product);
+    } catch (error) {
+      console.error("Error adding product to wishlist:", error);
+      next(error);
+    }
+  });
 
-    });
+  // Route to remove a product from the wishlist
+  app.delete("/wishlist/:id", UserAuth, async (req, res, next) => {
+    try {
+      const { _id } = req.user;
+      const productId = req.params.id;
+      const { data } = await service.GetProductPayload(
+        _id,
+        { productId },
+        "REMOVE_FROM_WISHLIST"
+      );
 
-    app.post('/ids', async(req,res,next) => {
+      PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+      return res.status(httpStatus.OK).json(data.data.product);
+    } catch (error) {
+      console.error("Error removing product from wishlist:", error);
+      next(error);
+    }
+  });
 
-        try {
-            const { ids } = req.body;
-            const products = await service.GetSelectedProducts(ids);
-            return res.status(200).json(products);
-            
-        } catch (err) {
-            next(err)
-        }
-       
-    });
-     
-    app.put('/wishlist',UserAuth, async (req,res,next) => {
+  // Route to add a product to the cart
+  app.put("/cart", UserAuth, async (req, res, next) => {
+    try {
+      const { _id } = req.user;
+      const { data } = await service.GetProductPayload(
+        _id,
+        { productId: req.body._id, qty: req.body.qty },
+        "ADD_TO_CART"
+      );
 
-        const { _id } = req.user;
-        
-        try {
-            const product = await service.GetProductById(req.body._id);
-            const wishList = await customerService.AddToWishlist(_id, product)
-            return res.status(200).json(wishList);
-        } catch (err) {
-            
-        }
-    });
-    
-    app.delete('/wishlist/:id',UserAuth, async (req,res,next) => {
+      PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+      PublishMessage(channel, SHOPPING_SERVICE, JSON.stringify(data));
 
-        const { _id } = req.user;
-        const productId = req.params.id;
+      const response = { product: data.data.product, unit: data.data.qty };
+      return res.status(httpStatus.OK).json(response);
+    } catch (error) {
+      console.error("Error adding product to cart:", error);
+      next(error);
+    }
+  });
 
-        try {
-            const product = await service.GetProductById(productId);
-            const wishlist = await customerService.AddToWishlist(_id, product)
-            return res.status(200).json(wishlist);
-        } catch (err) {
-            next(err)
-        }
-    });
+  // Route to remove a product from the cart
+  app.delete("/cart/:id", UserAuth, async (req, res, next) => {
+    try {
+      const { _id } = req.user;
+      const productId = req.params.id;
+      const { data } = await service.GetProductPayload(
+        _id,
+        { productId },
+        "REMOVE_FROM_CART"
+      );
 
+      PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+      PublishMessage(channel, SHOPPING_SERVICE, JSON.stringify(data));
 
-    app.put('/cart',UserAuth, async (req,res,next) => {
-        
-        const { _id, qty } = req.body;
-        
-        try {     
-            const product = await service.GetProductById(_id);
-    
-            const result =  await customerService.ManageCart(req.user._id, product, qty, false);
-    
-            return res.status(200).json(result);
-            
-        } catch (err) {
-            next(err)
-        }
-    });
-    
-    app.delete('/cart/:id',UserAuth, async (req,res,next) => {
+      const response = { product: data.data.product, unit: data.data.qty };
+      return res.status(httpStatus.OK).json(response);
+    } catch (error) {
+      console.error("Error removing product from cart:", error);
+      next(error);
+    }
+  });
 
-        const { _id } = req.user;
+  // Route to get top products and categories
+  app.get("/", async (req, res, next) => {
+    try {
+      const { data } = await service.GetProducts();
+      return res.status(httpStatus.OK).json(data);
+    } catch (error) {
+      console.error("Error getting top products and categories:", error);
+      next(error);
+    }
+  });
 
-        try {
-            const product = await service.GetProductById(req.params.id);
-            const result = await customerService.ManageCart(_id, product, 0 , true);             
-            return res.status(200).json(result);
-        } catch (err) {
-            next(err)
-        }
-    });
-
-    //get Top products and category
-    app.get('/', async (req,res,next) => {
-        //check validation
-        try {
-            const { data} = await service.GetProducts();        
-            return res.status(200).json(data);
-        } catch (error) {
-            next(err)
-        }
-        
-    });
-    
-}
+  // Route to identify the service
+  app.get("/whoami", (req, res, next) => {
+    return res
+      res.status(httpStatus.OK)
+      .json({ msg: "/ or /products : I am products Service" });
+  });
+};

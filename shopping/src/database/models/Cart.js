@@ -1,12 +1,8 @@
 const mongoose = require('mongoose');
-
 const Schema = mongoose.Schema;
 
-const OrderSchema = new Schema({
-    orderId: { type: String },
-    customerId: { type: String },
-    amount: { type: Number },
-    status: { type: String, default: 'pending' },
+const CartSchema = new Schema({
+    customerId: { type: String, required: true },
     items: [
         {   
             product: {
@@ -17,19 +13,11 @@ const OrderSchema = new Schema({
                 type: { type: String },
                 unit: { type: Number },
                 price: { type: Number },
-                supplier: { type: String },
+                suplier: { type: String },
             } ,
             unit: { type: Number, required: true } 
         }
     ]
-},
-{
-    toJSON: {
-        transform(doc, ret){
-            delete ret.__v;
-        }
-    },
-    timestamps: true
 });
 
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = mongoose.model('Cart', CartSchema);

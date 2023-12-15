@@ -1,167 +1,179 @@
 const { CustomerModel, AddressModel } = require('../models');
 
-//Dealing with data base operations
+// Repository handling database operations for customers
 class CustomerRepository {
 
-  async CreateCustomer({ email, password, phone, salt }) {
+    // Create a new customer in the database
+    async CreateCustomer({ email, password, phone, salt }) {
+        try {
+            const customer = new CustomerModel({
+                email,
+                password,
+                salt,
+                phone,
+                address: []
+            });
 
-    const customer = new CustomerModel({
-      email,
-      password,
-      salt,
-      phone,
-      address: []
-    })
-
-    const customerResult = await customer.save();
-    return customerResult;
-  }
-    
-  async CreateAddress({ _id, street, postalCode, city, country }) {
-        
-    const profile = await CustomerModel.findById(_id);
-        
-    if (profile) {
-            
-      const newAddress = new AddressModel({
-        street,
-        postalCode,
-        city,
-        country
-      })
-
-      await newAddress.save();
-
-      profile.address.push(newAddress);
-    }
-
-    return await profile.save();
-  }
-
-  async FindCustomer({ email }) {
-    const existingCustomer = await CustomerModel.findOne({ email: email });
-    return existingCustomer;
-  }
-
-  async FindCustomerById({ id }) {
-
-    const existingCustomer = await CustomerModel.findById(id).populate('address');
-    // existingCustomer.cart = [];
-    // existingCustomer.orders = [];
-    // existingCustomer.wishlist = [];
-
-    // await existingCustomer.save();
-    return existingCustomer;
-  }
-
-  async Wishlist(customerId) {
-
-    const profile = await CustomerModel.findById(customerId);
-
-    return profile.wishlist;
-  }
-
-  async AddWishlistItem(customerId, { _id, name, desc, price, available, banner }) {
-        
-    const product = { _id, name, desc, price, available, banne };
-
-    const profile = await CustomerModel.findById(customerId);
-
-    if (profile) {
-
-      let wishlist = profile.wishlist;
-  
-      if (wishlist.length > 0) {
-        let isExist = false;
-        wishlist.map(item => {
-          if (item._id.toString() === product._id.toString()) {
-            const index = wishlist.indexOf(item);
-            wishlist.splice(index, 1);
-            isExist = true;
-          }
-        });
-
-        if (!isExist) {
-          wishlist.push(product);
+            const customerResult = await customer.save();
+            return customerResult;
+        } catch (error) {
+            console.error('Error creating customer:', error);
+            throw new Error('Unable to create customer');
         }
-
-      } else {
-        wishlist.push(product);
-      }
-
-      profile.wishlist = wishlist;
     }
 
-    const profileResult = await profile.save();
+    // Create a new address for a customer
+    async CreateAddress({ _id, street, postalCode, city, country }) {
+        try {
+            const profile = await CustomerModel.findById(_id);
 
-    return profileResult.wishlist;
-
-  }
-
-
-  async AddCartItem(customerId, { _id, name, price, banner }, qty, isRemove) {
-
-    const profile = await CustomerModel.findById(customerId)
-
-    if (profile) {
-      const cartItem = {
-        product: { _id, name, price, banner },
-        unit: qty,
-      };
-          
-      let cartItems = profile.cart;
-            
-      if (cartItems.length > 0) {
-        let isExist = false;
-        cartItems.map(item => {
-          if (item.product._id.toString() === _id.toString()) {
-
-            if (isRemove) {
-              cartItems.splice(cartItems.indexOf(item), 1);
-            } else {
-              item.unit = qty;
+            if (!profile) {
+                throw new Error('Customer not found');
             }
-            isExist = true;
-          }
-        });
 
-        if (!isExist) {
-          cartItems.push(cartItem);
+            const newAddress = new AddressModel({
+                street,
+                postalCode,
+                city,
+                country
+            });
+
+            await newAddress.save();
+
+            profile.address.push(newAddress);
+
+            return await profile.save();
+        } catch (error) {
+            console.error('Error creating address:', error);
+            throw new Error('Unable to create address');
         }
-      } else {
-        cartItems.push(cartItem);
-      }
-
-      profile.cart = cartItems;
-
-      return await profile.save();
     }
-        
-    throw new Error('Unable to add to cart!');
-  }
 
+    // Find a customer by email
+    async FindCustomer({ email }) {
+        try {
+            const existingCustomer = await CustomerModel.findOne({ email });
+            return existingCustomer;
+        } catch (error) {
+            console.error('Error finding customer by email:', error);
+            throw new Error('Unable to find customer by email');
+        }
+    }
 
-
-  async AddOrderToProfile(customerId, order) {
-
-    const profile = await CustomerModel.findById(customerId);
-
-    if (profile) {
+    // Find a customer by ID and populate the 'address' field
+    async FindCustomerById({ id }) {
+        try {
+            const existingCustomer = await CustomerModel.findById(id)
+                .populate('address');
             
-      if (profile.orders == undefined) {
-        profile.orders = []
-      }
-      profile.orders.push(order);
-
-      profile.cart = [];
-
-      const profileResult = await profile.save();
-
-      return profileResult;
+            return existingCustomer;
+        } catch (error) {
+            console.error('Error finding customer by ID:', error);
+            throw new Error('Unable to find customer by ID');
+        }
     }
-        
-    throw new Error('Unable to add to order!');
-  }
+
+    // Retrieve wishlist items for a customer
+    async Wishlist(customerId) {
+        try {
+            const profile = await CustomerModel.findById(customerId);
+            return profile.wishlist;
+        } catch (error) {
+            console.error('Error retrieving wishlist:', error);
+            throw new Error('Unable to retrieve wishlist');
+        }
+    }
+
+    // Add an item to the customer's wishlist
+    async AddWishlistItem(customerId, { _id, name, desc, price, available, banner }) {
+        try {
+            const product = { _id, name, desc, price, available, banner };
+
+            const profile = await CustomerModel.findById(customerId);
+
+            if (!profile) {
+                throw new Error('Customer not found');
+            }
+
+            let wishlist = profile.wishlist;
+            
+            const existingItem = wishlist.find(item => item._id.toString() === product._id.toString());
+
+            if (existingItem) {
+                // If the item exists, remove it
+                wishlist = wishlist.filter(item => item._id.toString() !== product._id.toString());
+            }
+
+            wishlist.push(product);
+            profile.wishlist = wishlist;
+
+            const profileResult = await profile.save();
+            return profileResult.wishlist;
+        } catch (error) {
+            console.error('Error adding wishlist item:', error);
+            throw new Error('Unable to add wishlist item');
+        }
+    }
+
+    // Add an item to the customer's cart
+    async AddCartItem(customerId, { _id, name, price, banner }, qty, isRemove) {
+        try {
+            const profile = await CustomerModel.findById(customerId).populate('cart');
+
+            if (!profile) {
+                throw new Error('Customer not found');
+            }
+
+            const cartItem = {
+                product: { _id, name, price, banner },
+                unit: qty,
+            };
+
+            let cartItems = profile.cart;
+
+            const existingItem = cartItems.find(item => item.product._id.toString() === _id.toString());
+
+            if (existingItem) {
+                // If the item exists, remove it or update quantity
+                isRemove ? cartItems = cartItems.filter(item => item.product._id.toString() !== _id.toString()) : existingItem.unit = qty;
+            } else {
+                cartItems.push(cartItem);
+            }
+
+            profile.cart = cartItems;
+
+            return await profile.save();
+        } catch (error) {
+            console.error('Error adding cart item:', error);
+            throw new Error('Unable to add cart item');
+        }
+    }
+
+    // Add an order to the customer's profile
+    async AddOrderToProfile(customerId, order) {
+        try {
+            const profile = await CustomerModel.findById(customerId);
+
+            if (!profile) {
+                throw new Error('Customer not found');
+            }
+
+            // Ensure orders array is initialized
+            if (!profile.orders) {
+                profile.orders = [];
+            }
+
+            profile.orders.push(order);
+
+            profile.cart = []; // Clear the cart after placing an order
+
+            const profileResult = await profile.save();
+            return profileResult;
+        } catch (error) {
+            console.error('Error adding order to profile:', error);
+            throw new Error('Unable to add order to profile');
+        }
+    }
 }
 
 module.exports = CustomerRepository;
