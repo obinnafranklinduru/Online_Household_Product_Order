@@ -99,13 +99,21 @@ module.exports.FormateData = (data) => {
  */
 module.exports.CreateChannel = async () => {
   try {
+    // Establishing a connection to the message queue server
     const connection = await amqplib.connect(MSG_QUEUE_URL);
+
+    // Creating a channel for communication with the AMQP server
     const channel = await connection.createChannel();
+
+    // Asserting the existence of a queue with specified properties
+    // (direct exchange, durability - messages survive server restarts) for message routing
     await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
-    return channel;
+
+    // Returning the created channel for further use
+    return channel
   } catch (err) {
     console.error('Error creating channel:', err);
-    throw err;
+    throw new Error(err.message);
   }
 };
 
@@ -116,6 +124,11 @@ module.exports.CreateChannel = async () => {
  * @param {string} msg - Message content.
  */
 module.exports.PublishMessage = (channel, service, msg) => {
-  channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
-  console.log("Sent:", msg);
+  try {
+    // Publishing the message to the specified exchange with the given routing key
+    channel.publish(EXCHANGE_NAME, service, Buffer.from(msg));
+    console.log("Sent:", msg);
+  } catch (err) {
+    console.error('Error publishing message:', err.message);
+  }
 };

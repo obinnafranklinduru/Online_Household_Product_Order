@@ -79,6 +79,7 @@ module.exports = (app, channel) => {
       );
 
       PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+      
       res.status(httpStatus.OK).json(data.data.product);
     } catch (error) {
       console.error("Error adding product to wishlist:", error);
@@ -98,6 +99,7 @@ module.exports = (app, channel) => {
       );
 
       PublishMessage(channel, CUSTOMER_SERVICE, JSON.stringify(data));
+
       return res.status(httpStatus.OK).json(data.data.product);
     } catch (error) {
       console.error("Error removing product from wishlist:", error);
@@ -161,8 +163,7 @@ module.exports = (app, channel) => {
 
   // Route to identify the service
   app.get("/whoami", (req, res, next) => {
-    return res
-      res.status(httpStatus.OK)
+    return res.status(httpStatus.OK)
       .json({ msg: "/ or /products : I am products Service" });
   });
 };

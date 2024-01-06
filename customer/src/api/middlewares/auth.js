@@ -20,8 +20,6 @@ module.exports = async (req, res, next) => {
             return res.status(httpStatus.UNAUTHORIZED).json({ message: 'Not Authorized' });
         }
     } catch (error) {
-        // Handle errors that might occur during the signature validation
-        console.error('Error in ValidateSignature middleware:', error);
         next(error);
     }
 };

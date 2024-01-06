@@ -6,14 +6,14 @@ const hpp = require('hpp');
 const mongoSanitize = require('express-mongo-sanitize');
 
 const { customer } = require('./api');
-const { CreateChannel } = require('./utils');
 const ErrorHandler = require('./utils/error-handler');
 
 /**
  * Configure the Express application.
  * @param {Object} app - Express application instance.
+ * @param {amqplib.Channel} channel - Message broker channel
  */
-module.exports = async (app) => {
+module.exports = async (app, channel) => {
     try {
         // Security Middlewares Configuration
         app.use(helmet()); // set security HTTP headers
@@ -25,11 +25,8 @@ module.exports = async (app) => {
         app.use(mongoSanitize()); // sanitize request data
         app.use(hpp()); // protect against HTTP Parameter Pollution attacks
 
-        // Create a message broker channel
-        const messageBrokerChannel = await CreateChannel();
-
         // Configure customer-related routes and middleware
-        customer(app, messageBrokerChannel);
+        customer(app, channel);
 
         // error handler
         app.use(ErrorHandler)

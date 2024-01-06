@@ -7,6 +7,7 @@ const {
   EXCHANGE_NAME,
   CUSTOMER_SERVICE,
   MSG_QUEUE_URL,
+  INFO_NAME,
 } = require("../config");
 
 // Utility functions
@@ -100,13 +101,17 @@ module.exports.FormateData = (data) => {
  */
 module.exports.CreateChannel = async () => {
   try {
+    // Establishing a connection to the message queue server
     const connection = await amqplib.connect(MSG_QUEUE_URL);
+
+    // Creating a channel for communication with the AMQP server
     const channel = await connection.createChannel();
-    await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
+
+    // Returning the created channel for further use
     return channel;
   } catch (err) {
     console.error('Error creating channel:', err);
-    throw err;
+    throw new Error(err.message);
   }
 };
 
@@ -116,21 +121,28 @@ module.exports.CreateChannel = async () => {
  * @param {Object} service - Service object with SubscribeEvents method.
  */
 module.exports.SubscribeMessage = async (channel, service) => {
+  // Declare the exchange with a direct type and durability
   await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
-  const q = await channel.assertQueue("", { exclusive: true });
+
+  // Declare a queue with a direct type and durability
+  const q = await channel.assertQueue(INFO_NAME, "direct", { durable: true });
   console.log(`Waiting for messages in queue: ${q.queue}`);
 
+  // Bind the queue to the exchange using the CUSTOMER_SERVICE routing key
   channel.bindQueue(q.queue, EXCHANGE_NAME, CUSTOMER_SERVICE);
 
+  // Consume messages from the queue
   channel.consume(
     q.queue,
     (msg) => {
       if (msg.content) {
+        // Process the received message and invoke the SubscribeEvents method
         console.log("Received message:", msg.content.toString());
         service.SubscribeEvents(msg.content.toString());
       }
+      
       console.log("[X] Received");
     },
-    { noAck: true }
+    { noAck: true } // Automatically acknowledge messages (no manual acknowledgment)
   );
 };

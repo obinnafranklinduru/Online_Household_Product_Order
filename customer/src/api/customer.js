@@ -66,7 +66,7 @@ module.exports = (app, channel) => {
     app.get('/shopping-details', UserAuth, async (req, res, next) => {
         try {
             const { _id } = req.user;
-            const { data } = await service.GetShoppingDetails(_id);
+            const { data } = await service.GetShopingDetails(_id);
             return res.status(httpStatus.OK).json(data);
         } catch (error) {
             console.error('Error in /shopping-details:', error);
