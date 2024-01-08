@@ -1,72 +1,32 @@
 [
   {
-    "name": "Sweet Pineapple",
-    "desc": "Delicious and Juicy Pineapple",
-    "type": "fruits",
-    "banner": "http://example.com/images/sweet_pineapple.jpg",
-    "unit": 1,
-    "price": 250,
-    "available": true,
-    "supplier": "Tropical Delights"
+    "txnId": "afs25ww5"
   },
   {
-    "name": "Red Grapes",
-    "desc": "Fresh and Sweet Red Grapes",
-    "type": "fruits",
-    "banner": "http://example.com/images/red_grapes.jpg",
-    "unit": 1,
-    "price": 180,
-    "available": true,
-    "supplier": "Vineyard Fresh"
+    "txnId": "x9z87y2a"
   },
   {
-    "name": "Avocado",
-    "desc": "Creamy and Nutrient-rich Avocado",
-    "type": "fruits",
-    "banner": "http://example.com/images/avocado.jpg",
-    "unit": 1,
-    "price": 200,
-    "available": true,
-    "supplier": "Green Harvest Farms"
+    "txnId": "p1q2r3s4"
   },
   {
-    "name": "Spinach",
-    "desc": "Fresh and Nutrient-packed Spinach",
-    "type": "vegetables",
-    "banner": "http://example.com/images/spinach.jpg",
-    "unit": 1,
-    "price": 150,
-    "available": true,
-    "supplier": "Organic Greens"
+    "txnId": "t5u6v7w8"
   },
   {
-    "name": "Tomatoes",
-    "desc": "Ripe and Juicy Tomatoes",
-    "type": "vegetables",
-    "banner": "http://example.com/images/tomatoes.jpg",
-    "unit": 1,
-    "price": 120,
-    "available": true,
-    "supplier": "Farm Fresh Produce"
+    "txnId": "k9l0m1n2"
   },
   {
-    "name": "Coconut Oil",
-    "desc": "Pure and High-Quality Coconut Oil",
-    "type": "oils",
-    "banner": "http://example.com/images/coconut_oil.jpg",
-    "unit": 1,
-    "price": 300,
-    "available": true,
-    "supplier": "Tropical Oils Ltd."
+    "txnId": "y3z4a5b6"
   },
   {
-    "name": "Olive Oil",
-    "desc": "Extra Virgin Olive Oil",
-    "type": "oils",
-    "banner": "http://example.com/images/olive_oil.jpg",
-    "unit": 1,
-    "price": 400,
-    "available": true,
-    "supplier": "Mediterranean Harvest"
+    "txnId": "q6r7s8t9"
+  },
+  {
+    "txnId": "j2k3l4m5"
+  },
+  {
+    "txnId": "g6h7i8j9"
+  },
+  {
+    "txnId": "u1v2w3x4"
   }
 ]
