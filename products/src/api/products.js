@@ -10,7 +10,7 @@ module.exports = (app, channel) => {
   // Route to create a new product
   app.post("/product/create", async (req, res, next) => {
     try {
-      const { name, desc, type, unit, price, available, suplier, banner } = req.body;
+      const { name, desc, type, unit, price, available, supplier, banner } = req.body;
       
       // TODO: validation
 
@@ -21,7 +21,7 @@ module.exports = (app, channel) => {
         unit,
         price,
         available,
-        suplier,
+        supplier,
         banner,
       });
 

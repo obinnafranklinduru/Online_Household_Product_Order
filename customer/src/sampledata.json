@@ -1,72 +1,52 @@
 [
   {
-    "name": "Sweet Pineapple",
-    "desc": "Delicious and Juicy Pineapple",
-    "type": "fruits",
-    "banner": "http://example.com/images/sweet_pineapple.jpg",
-    "unit": 1,
-    "price": 250,
-    "available": true,
-    "supplier": "Tropical Delights"
+    "email": "test1@gmail.com",
+    "password": "Password123",
+    "phone": "test1234"
   },
   {
-    "name": "Red Grapes",
-    "desc": "Fresh and Sweet Red Grapes",
-    "type": "fruits",
-    "banner": "http://example.com/images/red_grapes.jpg",
-    "unit": 1,
-    "price": 180,
-    "available": true,
-    "supplier": "Vineyard Fresh"
+    "email": "test2@gmail.com",
+    "password": "Password456",
+    "phone": "test5678"
   },
   {
-    "name": "Avocado",
-    "desc": "Creamy and Nutrient-rich Avocado",
-    "type": "fruits",
-    "banner": "http://example.com/images/avocado.jpg",
-    "unit": 1,
-    "price": 200,
-    "available": true,
-    "supplier": "Green Harvest Farms"
+    "email": "test3@gmail.com",
+    "password": "Pass987word",
+    "phone": "test9876"
   },
   {
-    "name": "Spinach",
-    "desc": "Fresh and Nutrient-packed Spinach",
-    "type": "vegetables",
-    "banner": "http://example.com/images/spinach.jpg",
-    "unit": 1,
-    "price": 150,
-    "available": true,
-    "supplier": "Organic Greens"
+    "email": "test4@gmail.com",
+    "password": "PassWord123",
+    "phone": "test4321"
   },
   {
-    "name": "Tomatoes",
-    "desc": "Ripe and Juicy Tomatoes",
-    "type": "vegetables",
-    "banner": "http://example.com/images/tomatoes.jpg",
-    "unit": 1,
-    "price": 120,
-    "available": true,
-    "supplier": "Farm Fresh Produce"
+    "email": "test5@gmail.com",
+    "password": "Pwd456Word",
+    "phone": "test8765"
   },
   {
-    "name": "Coconut Oil",
-    "desc": "Pure and High-Quality Coconut Oil",
-    "type": "oils",
-    "banner": "http://example.com/images/coconut_oil.jpg",
-    "unit": 1,
-    "price": 300,
-    "available": true,
-    "supplier": "Tropical Oils Ltd."
+    "email": "test6@gmail.com",
+    "password": "Password789",
+    "phone": "test2345"
   },
   {
-    "name": "Olive Oil",
-    "desc": "Extra Virgin Olive Oil",
-    "type": "oils",
-    "banner": "http://example.com/images/olive_oil.jpg",
-    "unit": 1,
-    "price": 400,
-    "available": true,
-    "supplier": "Mediterranean Harvest"
+    "email": "test7@gmail.com",
+    "password": "Word123Pass",
+    "phone": "test6543"
+  },
+  {
+    "email": "test8@gmail.com",
+    "password": "PassTest123",
+    "phone": "test5678"
+  },
+  {
+    "email": "test9@gmail.com",
+    "password": "TestPass123",
+    "phone": "test1234"
+  },
+  {
+    "email": "test10@gmail.com",
+    "password": "Test123Pass",
+    "phone": "test7890"
   }
 ]

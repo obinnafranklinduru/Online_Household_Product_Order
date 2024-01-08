@@ -19,8 +19,8 @@ class ShoppingService {
 
     async PlaceOrder(userInput) {
         try {
-            const { _id, txnNumber } = userInput;
-            const orderResult = await this.repository.CreateNewOrder(_id, txnNumber);
+            const { _id, txnId } = userInput;
+            const orderResult = await this.repository.CreateNewOrder(_id, txnId);
             return FormateData(orderResult);
         } catch (error) {
             throw new Error('Error placing order');

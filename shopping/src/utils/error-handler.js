@@ -39,14 +39,11 @@ const ErrorHandler = async (err, req, res, next) => {
 
     process.on('uncaughtException', (err) => {
         errorLogger.logError(err);
-        if (errorLogger.isOperationalError(err)) {
-            // Process exit / restart
-        }
     });
 
     if (err) {
         await errorLogger.logError(err);
-        if (errorLogger.isOperationalError(err)) {
+        if (errorLogger) {
             if (err.errorStack) {
                 const errorDescription = err.errorStack;
                 return res.status(err.statusCode).json({ 'message': errorDescription });

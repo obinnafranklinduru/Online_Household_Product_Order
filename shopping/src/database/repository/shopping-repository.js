@@ -61,38 +61,39 @@ class ShoppingRepository {
     }
 
     // Create a new order
-    async CreateNewOrder(customerId, txnId){
+    async CreateNewOrder(customerId, txnId) {
         try {
             const cart = await CartModel.findOne({ customerId });
 
-            if (cart) {
-                let amount = 0;
-                const cartItems = cart.items;
+            if (!cart) return {};
 
-                if (cartItems.length > 0) {
-                    cartItems.forEach(item => {
-                        amount += parseInt(item.product.price) * parseInt(item.unit);
-                    });
+            let amount = 0;
+            const cartItems = cart.items;
 
-                    const orderId = uuidv4();
+            let orderResult;
 
-                    const order = new OrderModel({
-                        orderId,
-                        customerId,
-                        amount,
-                        status: 'received',
-                        items: cartItems
-                    });
+            if (cartItems.length > 0) {
+                cartItems.forEach(item => {
+                    amount += parseInt(item.product.price) * parseInt(item.unit);
+                });
 
-                    cart.items = [];
+                const orderId = uuidv4();
 
-                    const orderResult = await order.save();
-                    await cart.save();
-                    return orderResult;
-                }
+                const order = new OrderModel({
+                    orderId,
+                    customerId,
+                    amount,
+                    status: 'received',
+                    items: cartItems
+                });
+
+                cart.items = [];
+
+                orderResult = await order.save();
+                await cart.save();
             }
 
-            return {};
+            return orderResult;
         } catch (error) {
             throw new Error('Error creating a new order');
         }

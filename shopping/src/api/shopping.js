@@ -12,9 +12,11 @@ module.exports = (app, channel) => {
     app.post('/order', UserAuth, async (req, res, next) => {
         try {
             const { _id } = req.user;
-            const { txnNumber } = req.body;
+            const { txnId } = req.body;
 
-            const { data } = await service.PlaceOrder({ _id, txnNumber });
+            const { data } = await service.PlaceOrder({ _id, txnId });
+
+            console.log("payload", data)
 
             const payload = await service.GetOrderPayload(_id, data, 'CREATE_ORDER');
 

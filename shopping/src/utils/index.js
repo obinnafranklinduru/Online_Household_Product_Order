@@ -6,8 +6,7 @@ const {
   APP_SECRET,
   EXCHANGE_NAME,
   SHOPPING_SERVICE,
-  MSG_QUEUE_URL,
-  INFO_NAME,
+  MSG_QUEUE_URL
 } = require("../config");
 
 // Utility functions
@@ -125,7 +124,7 @@ module.exports.SubscribeMessage = async (channel, service) => {
   await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
   
   // Declare a queue with a direct type and durability
-  const q = await channel.assertQueue(INFO_NAME, "direct", { durable: true });
+  const q = await channel.assertQueue(EXCHANGE_NAME, "direct", { durable: true });
   console.log(`Waiting for messages in queue: ${q.queue}`);
 
   // Bind the queue to the exchange using the SHOPPING_SERVICE routing key
@@ -139,8 +138,9 @@ module.exports.SubscribeMessage = async (channel, service) => {
         // Process the received message and invoke the SubscribeEvents method
         console.log("Received message:", msg.content.toString());
         service.SubscribeEvents(msg.content.toString());
+      } else {
+        console.log("[X] Received");
       }
-      console.log("[X] Received");
     },
     { noAck: true } // Automatically acknowledge messages (no manual acknowledgment)
   );
