@@ -25,9 +25,6 @@ module.exports = async (app, channel) => {
         app.use(mongoSanitize()); // sanitize request data
         app.use(hpp()); // protect against HTTP Parameter Pollution attacks
 
-        // Create a message broker channel
-        const messageBrokerChannel = await CreateChannel();
-
         // Configure customer-related routes and middleware
         products(app, channel);
 
