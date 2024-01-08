@@ -29,7 +29,6 @@ build/
 dist/
 *.bak
 *.md
-*.json
 *.lock
 *.bak
 *.map
