@@ -4,6 +4,7 @@
   "description": "An Online Household Product Order Backend implemented in ES6, following the  Microservices Architecture. Each independent service operates autonomously to efficiently handle specific business logic and functionalities.",
   "main": "index.js",
   "scripts": {
+    "docker": "docker-compose build && docker-compose up",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
