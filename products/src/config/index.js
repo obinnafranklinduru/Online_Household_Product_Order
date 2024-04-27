@@ -7,6 +7,6 @@ module.exports = {
   BASE_URL: process.env.BASE_URL,
   EXCHANGE_NAME: process.env.EXCHANGE_NAME,
   MSG_QUEUE_URL: process.env.MSG_QUEUE_URL,
-  CUSTOMER_SERVICE: process.env.CUSTOMER_SERVICE,
-  SHOPPING_SERVICE: process.env.SHOPPING_SERVICE,
+  CUSTOMER_SERVICE: "customer_service",
+  SHOPPING_SERVICE: "shopping_service",
 };
