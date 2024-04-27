@@ -12,7 +12,7 @@ services:
     image: rabbitmq:alpine
     container_name: rabbitmq
     ports:
-      - '5672:5672'
+      - "5672:5672"
 
   products:
     build:
@@ -26,7 +26,7 @@ services:
       - "nosql-db"
       - "rabbitmq"
     volumes:
-      - ./products:/app
+      - .:/app
       - /app/products/node_modules
     env_file:
       - ./products/.env
@@ -43,7 +43,7 @@ services:
       - "nosql-db"
       - "rabbitmq"
     volumes:
-      - ./shopping:/app
+      - .:/app
       - /app/shopping/node_modules
     env_file:
       - ./shopping/.env
@@ -60,7 +60,7 @@ services:
       - "nosql-db"
       - "rabbitmq"
     volumes:
-      - ./customer:/app
+      - .:/app
       - /app/customer/node_modules
     env_file:
       - ./customer/.env
