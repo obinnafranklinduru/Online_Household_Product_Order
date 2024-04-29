@@ -2,82 +2,102 @@ version: "3.9"
 
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:4.4.6
+    container_name: mongodb
     restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=root
-      - MONGO_INITDB_DATABASE=online_household_product_order
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:3.9.16-management
+    container_name: rabbitmq
     restart: always
     ports:
       - "15672:15672"
       - "5672:5672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=root
-      - RABBITMQ_DEFAULT_PASS=root
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   products:
     build:
       dockerfile: Dockerfile
       context: ./products
-    container_name: products_service
+    container_name: products
     ports:
       - "8002:8002"
     restart: always
     depends_on:
-      - "mongodb"
       - "rabbitmq"
+      - "mongodb"
     volumes:
       - ./products:/app
-      - products_node_modules:/app/node_modules
     env_file:
       - ./products/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://products:8002/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   shopping:
     build:
       dockerfile: Dockerfile
       context: ./shopping
-    container_name: shopping_service
+    container_name: shopping
     ports:
       - "8003:8003"
     restart: always
     depends_on:
-      - "mongodb"
       - "rabbitmq"
+      - "mongodb"
     volumes:
       - ./shopping:/app
-      - shopping_node_modules:/app/node_modules
     env_file:
       - ./shopping/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://shopping:8003/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   customer:
     build:
       dockerfile: Dockerfile
       context: ./customer
-    container_name: customer_service
+    container_name: customer
     ports:
       - "8001:8001"
     restart: always
     depends_on:
-      - "mongodb"
       - "rabbitmq"
+      - "mongodb"
     volumes:
       - ./customer:/app
-      - customer_node_modules:/app/node_modules
     env_file:
       - ./customer/.env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://customer:8001/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   nginx-proxy:
     build:
       dockerfile: Dockerfile
       context: ./proxy
+    container_name: nginx-proxy
     depends_on:
       - products
       - shopping
@@ -87,10 +107,4 @@ services:
 
 volumes:
   mongodb_data:
-    driver: local
-  products_node_modules:
-    driver: local
-  shopping_node_modules:
-    driver: local
-  customer_node_modules:
-    driver: local
+  rabbitmq_data:
