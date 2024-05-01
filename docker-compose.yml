@@ -9,11 +9,6 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   rabbitmq:
     image: rabbitmq:3.9.16-management
@@ -24,11 +19,6 @@ services:
       - "5672:5672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   products:
     build:
@@ -45,11 +35,6 @@ services:
       - ./products:/app
     env_file:
       - ./products/.env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://products:8002/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   shopping:
     build:
@@ -66,11 +51,6 @@ services:
       - ./shopping:/app
     env_file:
       - ./shopping/.env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://shopping:8003/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   customer:
     build:
@@ -87,11 +67,6 @@ services:
       - ./customer:/app
     env_file:
       - ./customer/.env
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://customer:8001/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   nginx-proxy:
     build:
